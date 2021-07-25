@@ -1,6 +1,4 @@
-from api import flaskApp
-
-db = flaskApp.db
+from api import db
 
 class Comentario(db.Model):
     __tablename__ = 'comentarios'

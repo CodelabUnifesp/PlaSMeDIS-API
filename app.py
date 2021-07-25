@@ -6,14 +6,12 @@ import random
 import jwt
 import datetime
 from functools import wraps
-from api import flaskApp
+from api import app, db
 from api.model.Usuario import *
 from api.model.Comentario import *
 from api.model.Notificacoes import *
 from api.model.Postagem import *
 from api.model.Formulario_Socioeconomico import *
-
-app = flaskApp.app
 
 def token_required(f):
    @wraps(f)

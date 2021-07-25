@@ -1,6 +1,4 @@
-from api import flaskApp
-
-db = flaskApp.db
+from api import db
 
 class Form_Socioeconomico(db.Model):
     __tablename__ = 'form_socioeconomico'
