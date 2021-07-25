@@ -1,150 +1,19 @@
 import os
-from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
-from flask_cors import CORS, cross_origin
+from flask import request
+from flask_cors import cross_origin
 import smtplib
 import random
 import jwt
 import datetime
 from functools import wraps
+from api import flaskApp
+from api.model.Usuario import *
+from api.model.Comentario import *
+from api.model.Notificacoes import *
+from api.model.Postagem import *
+from api.model.Formulario_Socioeconomico import *
 
-app = Flask(__name__)
-cors = CORS(app, resources={r"*": {"origins": "*"}})
-app.config['CORS_HEADERS'] = 'Content-Type'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', "postgresql://jkpaprazxcpojo:2a135108dda110cdf26d9ef31fff1c6b9f94cd92993f25a90c3df353c685626d@ec2-52-45-179-101.compute-1.amazonaws.com:5432/d5bi00ifg35edj")
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "N5Rc6dvl8giHxExSXQmJ")
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
-
-class Usuario(db.Model):
-    __tablename__ = 'usuarios'
-    id = db.Column(db.Integer, primary_key=True)
-    real_name = db.Column(db.String(80), nullable=False)
-    user_name = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(80), nullable=False)
-    email = db.Column(db.String(120), unique=True, nullable=True)
-    verificado = db.Column(db.Boolean, default=False, nullable=False)
-    sexo = db.Column(db.String(1), nullable=True)
-    nascimento = db.Column(db.String(20), nullable=True)
-    cor = db.Column(db.String(10), nullable=True)
-    telefone = db.Column(db.String(20), nullable=True)
-    rua = db.Column(db.String(100), nullable=True)
-    numero_casa = db.Column(db.Integer, nullable=True)
-    data_registro = db.Column(db.DateTime, nullable=True)
-    bairro = db.Column(db.Integer, db.ForeignKey('bairros.id'), nullable=False)
-    user_type = db.Column(db.Integer, db.ForeignKey('privilegios.id'), nullable=False)
-
-    def __init__(self, real_name, password, user_name, user_type, bairro):
-        import datetime
-        self.real_name = real_name
-        self.password = password
-        self.verificado = False
-        self.user_name = user_name
-        self.user_type = user_type
-        self.data_registro = datetime.datetime.now()
-        self.bairro = bairro
-
-class Notificacoes_Conf(db.Model):
-    __tablename__ = 'notificacoes_conf'
-    id = db.Column(db.Integer, primary_key=True)
-    usuario = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    sistema = db.Column(db.Boolean, default=False, nullable=False)
-    selo_postagem = db.Column(db.Boolean, default=False, nullable=False)
-    comentario_postagem = db.Column(db.Boolean, default=False, nullable=False)
-    saude =db.Column(db.Boolean, default=False, nullable=False)
-    lazer = db.Column(db.Boolean, default=False, nullable=False)
-    trocas = db.Column(db.Boolean, default=False, nullable=False)
-
-    def __init__(self, usuario, sistema, selo_postagem, comentario_postagem, saude, lazer, trocas):
-        self.usuario = usuario
-        self.sistema = sistema
-        self.selo_postagem = selo_postagem
-        self.comentario_postagem = comentario_postagem
-        self.saude = saude
-        self.lazer = lazer
-        self.trocas = trocas
-
-class Privilegio(db.Model):
-    __tablename__ = 'privilegios'
-    id = db.Column(db.Integer, primary_key=True)
-    user_type = db.Column(db.String(80), unique=True, nullable=False)
-
-    def __init__(self, user_type):
-        self.user_type = user_type
-
-class Bairro(db.Model):
-    __tablename__ = 'bairros'
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(80), unique=True, nullable=False)
-
-    def __init__(self, nome):
-        self.nome = nome
-
-class Postagem(db.Model):
-    __tablename__ = 'postagens'
-    id = db.Column(db.Integer, primary_key=True)
-    titulo = db.Column(db.String(400), nullable=False)
-    texto = db.Column(db.String(400), nullable=False)
-    criador = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    categoria = db.Column(db.Integer, db.ForeignKey('categorias.id'), nullable=False)
-    selo = db.Column(db.Boolean, default=False, nullable=False)
-    data = db.Column(db.Time)
-
-    def __init__(self, titulo, texto, criador, categoria):
-        self.titulo = titulo
-        self.texto = texto
-        self.criador = criador
-        self.categoria = categoria
-
-class Categoria(db.Model):
-    __tablename__ = 'categorias'
-    id = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(80), unique=True, nullable=False)
-
-    def __init__(self, nome):
-        self.nome = nome
-
-class Comentario(db.Model):
-    __tablename__ = 'comentarios'
-    id = db.Column(db.Integer, primary_key=True)
-    texto = db.Column(db.String(400), nullable=False)
-    criador = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    postagem = db.Column(db.Integer, db.ForeignKey('postagens.id'), nullable=False)
-    resposta = db.Column(db.Integer, db.ForeignKey('comentarios.id'), nullable=True)
-    data = db.Column(db.Time)
-
-    def __init__(self, texto, criador, postagem, resposta):
-        self.texto = texto
-        self.criador = criador
-        self.postagem = postagem
-        self.resposta = resposta
-
-class Form_Socioeconomico(db.Model):
-    __tablename__ = 'form_socioeconomico'
-    id = db.Column(db.Integer, primary_key=True)
-    nome_rep_familia = db.Column(db.String(100), nullable=False)
-    pessoa = db.Column(db.Integer, db.ForeignKey('usuarios.id'), nullable=False)
-    qtd_pessoas_familia = db.Column(db.Integer, nullable=False)
-    qtd_criancas = db.Column(db.Integer, nullable=False)
-    gestante = db.Column(db.Boolean, nullable=False)
-    qtd_amamentando = db.Column(db.Integer, nullable=False)
-    qtd_criancas_deficiencia = db.Column(db.Integer, nullable=False)
-    preenchido = db.Column(db.Boolean, nullable=False, default="False")
-    pessoa_amamenta = db.Column(db.Boolean, nullable=False, default="False")
-    qtd_gestantes = db.Column(db.Integer, nullable=False)
-    def __init__(self, nome_rep_familia, pessoa, qtd_pessoas_familia, qtd_criancas, gestante, qtd_amamentando, qtd_criancas_deficiencia, qtd_gestantes, pessoa_amamenta):
-        self.nome_rep_familia = nome_rep_familia
-        self.pessoa = pessoa
-        self.qtd_pessoas_familia = qtd_pessoas_familia
-        self.qtd_criancas = qtd_criancas
-        self.gestante = gestante
-        self.qtd_amamentando = qtd_amamentando
-        self.qtd_criancas_deficiencia = qtd_criancas_deficiencia
-        self.qtd_gestantes = qtd_gestantes
-        self.pessoa_amamenta = pessoa_amamenta
-        self.preenchido = True
+app = flaskApp.app
 
 def token_required(f):
    @wraps(f)
