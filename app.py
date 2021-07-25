@@ -1,9 +1,8 @@
 import os
 from flask_cors import cross_origin
 from api import app
-from api.services.auth import EsqueciSenha, token_required, Login
-from api.model.Formulario_Socioeconomico import *
-from api.services.users import VerifyUsername, HandleUser, Users, Privileges, Bairro
+from api.util.decorators import token_required
+from api.services.auth import EsqueciSenha, Login
 from api.services.forms import FormSocio
 from api.services.notifications import HandleUserNotification
 from api.services.comments import Comentarios, ComentariosPostagem
