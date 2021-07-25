@@ -2,14 +2,14 @@ import os
 from flask_cors import cross_origin
 from api import app
 from api.util.decorators import token_required
-from api.services.comments import Comentarios, ComentariosPostagem
 from api.services.posts import Filtros, Categorias, ListaPostagens, Postagens, PostagensId, Recomendados, Selo
-from api.controller import users, auth, forms, notifications
+from api.controller import users, auth, forms, notifications, comments
 
 app.register_blueprint(users.app)
 app.register_blueprint(auth.app)
 app.register_blueprint(forms.app)
 app.register_blueprint(notifications.app)
+app.register_blueprint(comments.app)
 
 @app.route('/')
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -57,18 +57,6 @@ def postagensId(id):
 @token_required
 def lista_postagens(id):
     return ListaPostagens(id)
-
-@app.route('/comentarios', methods=['POST', 'GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def comentarios():
-    return Comentarios()
-
-@app.route('/comentarios/<postagem_id>', methods=['GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def comentarios_postagem(postagem_id):
-    return ComentariosPostagem(postagem_id)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
