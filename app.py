@@ -8,17 +8,9 @@ from api.model.Notificacoes import *
 from api.model.Postagem import *
 from api.services.auth import EsqueciSenha, token_required, Login
 from api.model.Formulario_Socioeconomico import *
+from api.services.users import VerifyUsername, HandleUser, Users, Privileges, Bairro
 
 
-def toDict(user: Usuario):
-    return {
-        "id": user.id,
-        "real_name": user.real_name,
-        "verificado": user.verificado,
-        "user_name": user.user_name,
-        "user_type": user.user_type,
-        "email": user.email
-    }
 
 @app.route('/')
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -94,33 +86,7 @@ def form_socio(id):
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def users():
-    if request.method == 'POST':
-        if request.is_json:
-            data = request.get_json()
-            new_user = Usuario(real_name=data['real_name'], password=data['password'], user_name=data['user_name'], user_type=data['user_type'], bairro=data['bairro'])
-            if "email" in data:
-                new_user.email = data['email']
-            db.session.add(new_user)
-            db.session.commit()
-            
-            new_user = Usuario.query.filter_by(user_name=data['user_name'],real_name=data['real_name']).first()
-            new_user_not = Notificacoes_Conf(usuario=new_user.id, sistema=False, selo_postagem=False, comentario_postagem=False, saude=False, lazer=False, trocas=False)
-            db.session.add(new_user_not)
-            db.session.commit()
-
-            return {"message": f"Usuario criado", "user": new_user.id}
-        else:
-            return {"error": "A requisição não foi feita no formato esperado"}
-
-    elif request.method == 'GET':
-        users = Usuario.query.all()
-        results = [
-            {
-                "user_name": user.user_name,
-                "email": user.email
-            } for user in users]
-
-        return {"count": len(results), "users": results, "message": "success"}
+    return Users()
 
 @app.route('/login', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -131,52 +97,13 @@ def login():
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def privileges():
-    if request.method == 'POST':
-        if request.is_json:
-            data = request.get_json()
-            new_privilege = Privilegio(user_type=data['user_type'])
-
-            db.session.add(new_privilege)
-            db.session.commit()
-
-            return {"message": f"Privilégio criado com sucesso"}
-        else:
-            return {"error": "A requisição não foi feita no formato esperado"}
-
-    elif request.method == 'GET':
-        privileges = Privilegio.query.all()
-        results = [
-            {
-                "user_type": privilege.user_type
-            } for privilege in privileges]
-
-        return {"count": len(results), "Privileges": results, "message": "success"}
+    return Privileges()
 
 @app.route('/bairros', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def bairros():
-    if request.method == 'POST':
-        if request.is_json:
-            data = request.get_json()
-            new_bairro = Bairro(nome=data['nome'])
-
-            db.session.add(new_bairro)
-            db.session.commit()
-
-            return {"message": f"Privilégio criado com sucesso"}
-        else:
-            return {"error": "A requisição não foi feita no formato esperado"}
-
-    elif request.method == 'GET':
-        bairros = Bairro.query.all()
-        results = [
-            {
-                "nome": bairro.nome,
-                "id": bairro.id
-            } for bairro in bairros]
-
-        return {"count": len(results), "Bairros": results, "message": "success"}
+    return Bairro()
 
 @app.route('/categorias', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -208,45 +135,7 @@ def categorias():
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def handle_user(id):
-    user = Usuario.query.get_or_404(id)
-
-    if request.method == 'GET':
-        response = {
-            "email": user.email,
-            "privilegio": user.user_type,
-            "nome": user.real_name,
-            "sexo": user.sexo,
-            "nascimento": user.nascimento,
-            "cor": user.cor,
-            "telefone": user.telefone,
-            "rua": user.rua,
-            "numero_casa": user.numero_casa
-        }
-        return {"message": "success", "user": response}
-
-    elif request.method == 'PUT':
-        data = request.get_json()
-        #user.email = data['email']
-        #user.real_name = data['real_name']
-        #user.password = data['password']
-        user.verificado = True
-        user.sexo = data['sexo']
-        user.nascimento = data['nascimento']
-        user.cor = data['cor']
-        user.telefone = data['telefone']
-        user.rua = data['rua']
-        user.numero_casa = data['numero_casa']
-
-        db.session.add(user)
-        db.session.commit()
-
-        return {"message": f"Dados de {user.user_name} atualizados"}
-
-    elif request.method == 'DELETE':
-        db.session.delete(user)
-        db.session.commit()
-
-        return {"message": f"Dados de {user.user_name} removidos"}
+    return HandleUser(id)
 
 @app.route('/selo/<id>', methods=['PUT'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -426,11 +315,7 @@ def esqueci_senha():
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def verify_username(username):
-    user = Usuario.query.filter_by(user_name=username).first()
-    if user:
-        return { "success": False, "message": "User with username '" + str(username) + "' already exists." }
-    else:
-        return { "success": True, "message": "Username '" + str(username) + "' is available."}
+    return VerifyUsername(username)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
