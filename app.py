@@ -7,6 +7,9 @@ from api.services.forms import FormSocio
 from api.services.notifications import HandleUserNotification
 from api.services.comments import Comentarios, ComentariosPostagem
 from api.services.posts import Filtros, Categorias, ListaPostagens, Postagens, PostagensId, Recomendados, Selo
+from api.controller.users import app as users_bp
+
+app.register_blueprint(users_bp)
 
 @app.route('/')
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -25,40 +28,16 @@ def handle_user_notificacao(id):
 def form_socio(id):
     return FormSocio(id)
 
-@app.route('/users', methods=['POST', 'GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def users():
-    return Users()
-
 @app.route('/login', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def login():
     return Login()
-
-@app.route('/privileges', methods=['POST', 'GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def privileges():
-    return Privileges()
-
-@app.route('/bairros', methods=['POST', 'GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def bairros():
-    return Bairro()
 
 @app.route('/categorias', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def categorias():
     return Categorias()
-
-@app.route('/users/<id>', methods=['GET', 'PUT', 'DELETE'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def handle_user(id):
-    return HandleUser(id)
 
 @app.route('/selo/<id>', methods=['PUT'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -114,12 +93,6 @@ def comentarios_postagem(postagem_id):
 @token_required
 def esqueci_senha():
     return EsqueciSenha()
-
-@app.route('/users/username/verify/<username>', methods=['GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def verify_username(username):
-    return VerifyUsername(username)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
