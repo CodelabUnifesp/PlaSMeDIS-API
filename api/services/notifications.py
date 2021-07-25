@@ -1,6 +1,6 @@
 from flask import request
 from api import db
-from api.model.Notificacoes import Notificacoes_Conf
+from api.model.notifications import Notificacoes_Conf
 
 def HandleUserNotification(id):
     user_not = Notificacoes_Conf.query.filter_by(usuario=id).first()

@@ -1,7 +1,7 @@
 from flask import request
 from api import db
-from api.model.Postagem import Postagem, Categoria
-from api.model.Usuario import Usuario
+from api.model.posts import Postagem, Categoria
+from api.model.users import Usuario
 from api.services.comments import ComentariosPostagem
 
 def Categorias():

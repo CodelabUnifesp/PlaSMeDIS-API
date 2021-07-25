@@ -1,6 +1,6 @@
 from flask import request
 from api import db
-from api.model.Formulario_Socioeconomico import Form_Socioeconomico
+from api.model.forms import Form_Socioeconomico
 
 def FormSocio(id):
     if request.method == 'POST':

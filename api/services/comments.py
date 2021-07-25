@@ -1,7 +1,7 @@
 from flask import request
 from api import db
-from api.model.Comentario import Comentario
-from api.model.Usuario import Usuario
+from api.model.comments import Comentario
+from api.model.users import Usuario
 
 def Comentarios():
     if request.method == 'POST':

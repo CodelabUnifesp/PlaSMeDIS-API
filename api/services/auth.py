@@ -5,7 +5,7 @@ import smtplib
 import random
 from flask import request
 from api import db, app
-from api.model.Usuario import Usuario
+from api.model.users import Usuario
 from api.services.users import UserToDict
 
 def Login():
