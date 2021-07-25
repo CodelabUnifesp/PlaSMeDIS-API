@@ -2,14 +2,14 @@ import os
 from flask_cors import cross_origin
 from api import app
 from api.util.decorators import token_required
-from api.services.forms import FormSocio
 from api.services.notifications import HandleUserNotification
 from api.services.comments import Comentarios, ComentariosPostagem
 from api.services.posts import Filtros, Categorias, ListaPostagens, Postagens, PostagensId, Recomendados, Selo
-from api.controller import users, auth
+from api.controller import users, auth, forms
 
 app.register_blueprint(users.app)
 app.register_blueprint(auth.app)
+app.register_blueprint(forms.app)
 
 @app.route('/')
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -21,12 +21,6 @@ def hello():
 @token_required
 def handle_user_notificacao(id):
     return HandleUserNotification(id)
-
-@app.route('/form_socio/<id>', methods=['POST', 'GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def form_socio(id):
-    return FormSocio(id)
 
 @app.route('/categorias', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
