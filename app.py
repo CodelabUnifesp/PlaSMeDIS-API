@@ -2,14 +2,14 @@ import os
 from flask_cors import cross_origin
 from api import app
 from api.util.decorators import token_required
-from api.services.auth import EsqueciSenha, Login
 from api.services.forms import FormSocio
 from api.services.notifications import HandleUserNotification
 from api.services.comments import Comentarios, ComentariosPostagem
 from api.services.posts import Filtros, Categorias, ListaPostagens, Postagens, PostagensId, Recomendados, Selo
-from api.controller.users import app as users_bp
+from api.controller import users, auth
 
-app.register_blueprint(users_bp)
+app.register_blueprint(users.app)
+app.register_blueprint(auth.app)
 
 @app.route('/')
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -27,11 +27,6 @@ def handle_user_notificacao(id):
 @token_required
 def form_socio(id):
     return FormSocio(id)
-
-@app.route('/login', methods=['POST', 'GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-def login():
-    return Login()
 
 @app.route('/categorias', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -86,13 +81,6 @@ def comentarios():
 @token_required
 def comentarios_postagem(postagem_id):
     return ComentariosPostagem(postagem_id)
-
-
-@app.route('/esqueci_senha', methods=['Get', 'Post'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def esqueci_senha():
-    return EsqueciSenha()
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
