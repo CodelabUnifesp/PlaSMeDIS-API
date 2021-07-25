@@ -1,19 +1,13 @@
 import os
-from flask import request
 from flask_cors import cross_origin
-from api import app, db
-from api.model.Usuario import *
-from api.model.Comentario import *
-from api.model.Notificacoes import *
-from api.model.Postagem import *
+from api import app
 from api.services.auth import EsqueciSenha, token_required, Login
 from api.model.Formulario_Socioeconomico import *
 from api.services.users import VerifyUsername, HandleUser, Users, Privileges, Bairro
 from api.services.forms import FormSocio
 from api.services.notifications import HandleUserNotification
 from api.services.comments import Comentarios, ComentariosPostagem
-
-
+from api.services.posts import Filtros, Categorias, ListaPostagens, Postagens, PostagensId, Recomendados, Selo
 
 @app.route('/')
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -59,27 +53,7 @@ def bairros():
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def categorias():
-    if request.method == 'POST':
-        if request.is_json:
-            data = request.get_json()
-            new_categoria = Categoria(nome=data['nome'])
-
-            db.session.add(new_categoria)
-            db.session.commit()
-
-            return {"message": f"Categoria criado com sucesso"}
-        else:
-            return {"error": "A requisição não foi feita no formato esperado"}
-
-    elif request.method == 'GET':
-        categorias = Categoria.query.all()
-        results = [
-            {
-                "nome": categoria.nome,
-                "id": categoria.id
-            } for categoria in categorias]
-
-        return {"count": len(results), "Categorias": results, "message": "success"}
+    return Categorias()
 
 @app.route('/users/<id>', methods=['GET', 'PUT', 'DELETE'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -91,118 +65,37 @@ def handle_user(id):
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def selo(id):
-    postagem = Postagem.query.get_or_404(id)
-    if request.method == 'PUT':
-        data = request.get_json()
-        postagem.selo = True
-
-        db.session.add(postagem)
-        db.session.commit()
-
-        return {"message": f"Selo emitido!"}
+    return Selo(id)
 
 @app.route('/postagens', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def postagens():
-    if request.method == 'POST':
-        if request.is_json:
-            data = request.get_json()
-            new_post = Postagem(texto=data['texto'], criador=data['criador'], titulo=data['titulo'], categoria=data['categoria'])
-
-            db.session.add(new_post)
-            db.session.commit()
-
-            return {"message": f"Postagem criada"}
-        else:
-            return {"error": "A requisição não está no formato esperado"}
-    elif request.method == 'GET':
-        postagensWithCriador = Postagem.query.join(Usuario, Postagem.criador == Usuario.id, isouter=True).add_columns(Usuario.real_name, Usuario.bairro)
-
-        # filtros gerais
-        bairro = request.args.get('bairro', None)
-        categoria = request.args.get('categoria', None)
-
-        if categoria is not None:
-            postagensWithCriador = postagensWithCriador.filter(Postagem.categoria.in_(map(int, categoria.split(','))))
-
-        if bairro is not None:
-            postagensWithCriador = postagensWithCriador.filter(Usuario.bairro.in_(map(int, bairro.split(','))))
-
-        postagens = postagensWithCriador.all()
-        results = []
-        for post in postagens:
-            results.append({"id": post.Postagem.id, "titulo": post.Postagem.titulo,"texto": post.Postagem.texto,"criador": post.real_name,"bairro": post.bairro,"selo":post.Postagem.selo,"categoria":post.Postagem.categoria,"data":post.Postagem.data})
-
-        return {"count": len(results), "post": results, "message": "success"}
+    return Postagens()
 
 @app.route('/recomendados', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def recomendados():
-    if request.method == 'GET':
-        postagens = Postagem.query.filter_by(selo=True).all()
-        results = []
-        for post in postagens:
-            user = Usuario.query.get_or_404(post.criador)
-            results.append({"id": post.id, "titulo": post.titulo,"texto": post.texto,"criador": user.real_name,"selo":post.selo,"categoria":post.categoria})
-
-        return {"count": len(results), "post": results, "message": "success"}
+    return Recomendados()
 
 @app.route('/postagens/categorias/<id_categoria>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def filtros(id_categoria):
-    postagens = Postagem.query.join(Categoria, id_categoria == Postagem.categoria)
-    print(postagens)
-    results = []
-    for post in postagens:
-        user = Usuario.query.get_or_404(post.criador)
-        results.append({"id": post.id, "titulo": post.titulo,"texto": post.texto,"criador": user.real_name,"selo":post.selo,"categoria":post.categoria, "data": post.data})
-
-    return {"count": len(results), "post": results, "message": "success"}
+    return Filtros(id_categoria)
 
 @app.route('/postagens/<id>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def postagensId(id):
-    post = Postagem.query.filter_by(id=id).first()
-    #TODO: Criar uma estrutura com 'services' com funções para facilitar a vida (e evitar ter que fazer encode decode do json)
-    import json
-    comments = comentarios_postagem(post.id).response[0].decode('utf-8')
-    comments = json.loads(comments)
-    post_user = Usuario.query.get_or_404(id)
-    result = {
-        "id": post.id,
-        "titulo": post.titulo,
-        "texto": post.texto,
-        "criador": {
-            "id": post_user.id,
-            "name": post_user.real_name
-        },
-        "selo":post.selo,
-        "categoria":post.categoria,
-        "data": post.data,
-        "comentarios": comments['comments']
-    }
-    return result
+    return PostagensId(id)
 
 @app.route('/lista_postagens/<id>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def lista_postagens(id):
-    if request.method == 'GET':
-        try :
-            postagens = Postagem.query.all()
-            user = Usuario.query.get_or_404(id)
-            results = []
-            for post in postagens:
-                if post.criador == user.id:
-                    results.append({"titulo": post.titulo,"texto": post.texto,"criador": user.real_name})
-
-            return {"count": len(results), "post": results, "message": "success"}
-        except:
-            return {"error": 404, "message": "Usuário não encontrado"}
+    return ListaPostagens(id)
 
 @app.route('/comentarios', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
