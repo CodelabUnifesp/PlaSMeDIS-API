@@ -1,6 +1,6 @@
 from flask_cors import cross_origin
 from api.util.decorators import token_required
-from api.services.users import Users, Privileges, Bairro, HandleUser, VerifyUsername
+from api.services.users import Users, Privileges, Bairro, VerifyUsername, GetUserId, PutUserId, DelUserId
 from flask import Blueprint
 
 #TODO: adicionar prefixo para as chamadas
@@ -24,11 +24,24 @@ def privileges():
 def bairros():
     return Bairro()
 
-@app.route('/users/<id>', methods=['GET', 'PUT', 'DELETE'])
+@app.route('/users/<id>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
-def handle_user(id):
-    return HandleUser(id)
+def get_user_id(id):
+    return GetUserId(id)
+
+
+@app.route('/users/<id>', methods=['PUT'])
+@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+@token_required
+def put_user_id(id):
+    return PutUserId(id)
+
+@app.route('/users/<id>', methods=['DELETE'])
+@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+@token_required
+def del_user_id(id):
+    return DelUserId(id)
 
 @app.route('/users/username/verify/<username>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])

@@ -87,46 +87,46 @@ def Bairros():
 
         return {"count": len(results), "Bairros": results, "message": "success"}
 
-def HandleUser(id):
+def GetUserId(id):
     user = Usuario.query.get_or_404(id)
+    response = {
+        "email": user.email,
+        "privilegio": user.user_type,
+        "nome": user.real_name,
+        "sexo": user.sexo,
+        "nascimento": user.nascimento,
+        "cor": user.cor,
+        "telefone": user.telefone,
+        "rua": user.rua,
+        "numero_casa": user.numero_casa
+    }
+    return {"message": "success", "user": response}
 
-    if request.method == 'GET':
-        response = {
-            "email": user.email,
-            "privilegio": user.user_type,
-            "nome": user.real_name,
-            "sexo": user.sexo,
-            "nascimento": user.nascimento,
-            "cor": user.cor,
-            "telefone": user.telefone,
-            "rua": user.rua,
-            "numero_casa": user.numero_casa
-        }
-        return {"message": "success", "user": response}
+def PutUserId(id):
+    user = Usuario.query.get_or_404(id)
+    data = request.get_json()
+    #user.email = data['email']
+    #user.real_name = data['real_name']
+    #user.password = data['password']
+    user.verificado = True
+    user.sexo = data['sexo']
+    user.nascimento = data['nascimento']
+    user.cor = data['cor']
+    user.telefone = data['telefone']
+    user.rua = data['rua']
+    user.numero_casa = data['numero_casa']
 
-    elif request.method == 'PUT':
-        data = request.get_json()
-        #user.email = data['email']
-        #user.real_name = data['real_name']
-        #user.password = data['password']
-        user.verificado = True
-        user.sexo = data['sexo']
-        user.nascimento = data['nascimento']
-        user.cor = data['cor']
-        user.telefone = data['telefone']
-        user.rua = data['rua']
-        user.numero_casa = data['numero_casa']
+    db.session.add(user)
+    db.session.commit()
 
-        db.session.add(user)
-        db.session.commit()
+    return {"message": f"Dados de {user.user_name} atualizados"}
 
-        return {"message": f"Dados de {user.user_name} atualizados"}
+def DelUserId(id):
+    user = Usuario.query.get_or_404(id)
+    db.session.delete(user)
+    db.session.commit()
 
-    elif request.method == 'DELETE':
-        db.session.delete(user)
-        db.session.commit()
-
-        return {"message": f"Dados de {user.user_name} removidos"}
+    return {"message": f"Dados de {user.user_name} removidos"}
 
 def VerifyUsername(username):
     user = Usuario.query.filter_by(user_name=username).first()
