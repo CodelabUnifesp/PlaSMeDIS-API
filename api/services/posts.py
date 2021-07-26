@@ -4,6 +4,10 @@ from api.model.posts import Postagem, Categoria
 from api.model.users import Usuario
 from api.services.comments import ComentariosPostagem
 
+#TODO: separar POST e GET
+#TODO: remover verificação de método
+#TODO: remover verificação de json POST
+#TODO: padronizar respostas dos endpoints?
 def Categorias():
     if request.method == 'POST':
         if request.is_json:
@@ -27,6 +31,8 @@ def Categorias():
 
         return {"count": len(results), "Categorias": results, "message": "success"}
 
+#TODO: remover verificação de método
+#TODO: receber 'data' do endpoint ver PUT /users/id:
 def Selo(id):
     postagem = Postagem.query.get_or_404(id)
     if request.method == 'PUT':
@@ -38,6 +44,8 @@ def Selo(id):
 
         return {"message": f"Selo emitido!"}
 
+#TODO: remover verificação de método
+#TODO: remover verificação de json POST
 def Postagens():
     if request.method == 'POST':
         if request.is_json:
@@ -70,6 +78,7 @@ def Postagens():
 
         return {"count": len(results), "post": results, "message": "success"}
 
+#TODO: remover verificação de método
 def Recomendados():
     if request.method == 'GET':
         postagens = Postagem.query.filter_by(selo=True).all()
@@ -82,7 +91,6 @@ def Recomendados():
 
 def Filtros(id_categoria):
     postagens = Postagem.query.join(Categoria, id_categoria == Postagem.categoria)
-    print(postagens)
     results = []
     for post in postagens:
         user = Usuario.query.get_or_404(post.criador)
@@ -109,6 +117,7 @@ def PostagensId(id):
     }
     return result
 
+#TODO: remover verificação de método
 def ListaPostagens(id):
     if request.method == 'GET':
         try :

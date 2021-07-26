@@ -6,6 +6,8 @@ from flask import Blueprint
 #TODO: adicionar prefixo para as chamadas
 app = Blueprint('comments', __name__, url_prefix='')
 
+#TODO: separar POST e GET
+#TODO: adicionar json_required POST
 @app.route('/comentarios', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required

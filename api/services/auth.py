@@ -8,6 +8,10 @@ from api import db, app
 from api.model.users import Usuario
 from api.services.users import UserToDict
 
+#TODO: separar POST e GET
+#TODO: remover verificação de método
+#TODO: remover verificação de json POST
+#TODO: padronizar respostas dos endpoints?
 def Login():
     AUTH_VERSION = os.environ.get("AUTH_VERSION", 0.2)
 
@@ -34,6 +38,8 @@ def Login():
         # jeito de atualizar algo no front vai ser matando a sessão atual do usuário
         return {'version': AUTH_VERSION}
 
+#TODO: remover verificação de método
+#TODO: remover verificação de json POST
 def EsqueciSenha():
      if request.method == 'POST':
         if request.is_json:

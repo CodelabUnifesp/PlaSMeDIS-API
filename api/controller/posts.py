@@ -6,18 +6,24 @@ from flask import Blueprint
 #TODO: adicionar prefixo para as chamadas
 app = Blueprint('posts', __name__, url_prefix='')
 
+#TODO: criar controller para categorias?
+#TODO: separar POST e GET
+#TODO: adicionar json_required POST
 @app.route('/categorias', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def categorias():
     return Categorias()
 
+#TODO: adicionar json_required PUT
 @app.route('/selo/<id>', methods=['PUT'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def selo(id):
     return Selo(id)
 
+#TODO: separar POST e GET
+#TODO: adicionar json_required POST
 @app.route('/postagens', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required

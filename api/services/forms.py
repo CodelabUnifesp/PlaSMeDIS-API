@@ -2,6 +2,10 @@ from flask import request
 from api import db
 from api.model.forms import Form_Socioeconomico
 
+#TODO: separar POST e GET
+#TODO: remover verificação de método
+#TODO: remover verificação de json POST
+#TODO: padronizar respostas dos endpoints?
 def FormSocio(id):
     if request.method == 'POST':
         if request.is_json:

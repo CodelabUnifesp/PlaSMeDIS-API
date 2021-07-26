@@ -6,18 +6,26 @@ from flask import Blueprint
 #TODO: adicionar prefixo para as chamadas
 app = Blueprint('users', __name__, url_prefix='')
 
+#TODO: separar POST e GET
+#TODO: adicionar json_required POST
 @app.route('/users', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def users():
     return Users()
+
 #TODO: criar controller para privilegios?
+#TODO: separar POST e GET
+#TODO: adicionar json_required POST
 @app.route('/privileges', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def privileges():
     return Privileges()
+
 #TODO: criar controller para bairros?
+#TODO: separar POST e GET
+#TODO: adicionar json_required POST
 @app.route('/bairros', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required

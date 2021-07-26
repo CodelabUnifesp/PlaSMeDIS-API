@@ -3,6 +3,10 @@ from api import db
 from api.model.comments import Comentario
 from api.model.users import Usuario
 
+#TODO: separar POST e GET
+#TODO: remover verificação de método
+#TODO: remover verificação de json POST
+#TODO: padronizar respostas dos endpoints?
 def Comentarios():
     if request.method == 'POST':
         if request.is_json:
@@ -29,6 +33,7 @@ def Comentarios():
 
         return {"count": len(results), "comments": results, "message": "success"}
 
+#TODO: remover verificação de método
 def ComentariosPostagem(postagem_id):
     if request.method == 'GET':
         comments = Comentario.query.filter_by(postagem=postagem_id).all()

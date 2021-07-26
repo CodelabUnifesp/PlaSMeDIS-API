@@ -2,6 +2,10 @@ from flask import request
 from api import db
 from api.model.notifications import Notificacoes_Conf
 
+#TODO: separar PUT e GET
+#TODO: remover verificação de método
+#TODO: remover verificação de json PUT
+#TODO: padronizar respostas dos endpoints?
 def HandleUserNotification(id):
     user_not = Notificacoes_Conf.query.filter_by(usuario=id).first()
 

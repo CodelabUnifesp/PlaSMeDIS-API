@@ -13,6 +13,10 @@ def UserToDict(user: Usuario):
         "email": user.email
     }
 
+#TODO: separar POST e GET
+#TODO: remover verificação de método
+#TODO: remover verificação de json POST
+#TODO: padronizar respostas dos endpoints?
 def Users():
     if request.method == 'POST':
         if request.is_json:
@@ -42,6 +46,9 @@ def Users():
 
         return {"count": len(results), "users": results, "message": "success"}
 
+#TODO: separar POST e GET
+#TODO: remover verificação de método
+#TODO: remover verificação de json POST
 def Privileges():
     if request.method == 'POST':
         if request.is_json:
@@ -64,6 +71,9 @@ def Privileges():
 
         return {"count": len(results), "Privileges": results, "message": "success"}
 
+#TODO: separar POST e GET
+#TODO: remover verificação de método
+#TODO: remover verificação de json POST
 def Bairros():
     if request.method == 'POST':
         if request.is_json:
@@ -102,6 +112,7 @@ def GetUserId(id):
     }
     return {"message": "success", "user": response}
 
+#TODO: fazer alguns campos serem opcionais?
 def PutUserId(data, id):
     user = Usuario.query.get_or_404(id)
     #user.email = data['email']
