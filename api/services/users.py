@@ -102,9 +102,8 @@ def GetUserId(id):
     }
     return {"message": "success", "user": response}
 
-def PutUserId(id):
+def PutUserId(data, id):
     user = Usuario.query.get_or_404(id)
-    data = request.get_json()
     #user.email = data['email']
     #user.real_name = data['real_name']
     #user.password = data['password']

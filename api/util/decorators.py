@@ -32,3 +32,11 @@ def token_required(f):
 
         return f(*args, **kwargs)
    return decorator
+
+def json_required(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        if not request.is_json:
+            return {'message': 'Espected json'}, 400
+        return f(request.get_json(), *args, **kwargs)
+    return decorator

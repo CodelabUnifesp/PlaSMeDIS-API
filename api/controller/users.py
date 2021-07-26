@@ -1,5 +1,5 @@
 from flask_cors import cross_origin
-from api.util.decorators import token_required
+from api.util.decorators import json_required, token_required
 from api.services.users import Users, Privileges, Bairro, VerifyUsername, GetUserId, PutUserId, DelUserId
 from flask import Blueprint
 
@@ -30,12 +30,12 @@ def bairros():
 def get_user_id(id):
     return GetUserId(id)
 
-
 @app.route('/users/<id>', methods=['PUT'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
-def put_user_id(id):
-    return PutUserId(id)
+@json_required
+def put_user_id(data, id):
+    return PutUserId(data, id)
 
 @app.route('/users/<id>', methods=['DELETE'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
