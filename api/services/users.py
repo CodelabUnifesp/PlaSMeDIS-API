@@ -123,6 +123,9 @@ def PutUserId(id):
 
 def DelUserId(id):
     user = Usuario.query.get_or_404(id)
+    notificacoes = Notificacoes_Conf.query.filter_by(usuario=id).first()
+    if notificacoes:
+        db.session.delete(notificacoes)
     db.session.delete(user)
     db.session.commit()
 
