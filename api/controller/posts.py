@@ -1,6 +1,6 @@
 from flask_cors import cross_origin
 from api.util.decorators import token_required
-from api.services.posts import Categorias, Selo, Postagens, Recomendados, Filtros, PostagensId, ListaPostagens
+from api.service.posts import Categorias, Selo, Postagens, Recomendados, Filtros, PostagensId, ListaPostagens
 from flask import Blueprint
 
 #TODO: adicionar prefixo para as chamadas

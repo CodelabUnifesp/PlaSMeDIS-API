@@ -6,7 +6,7 @@ import random
 from flask import request
 from api import db, app
 from api.model.users import Usuario
-from api.services.users import UserToDict
+from api.service.users import UserToDict
 
 #TODO: separar POST e GET
 #TODO: remover verificação de método

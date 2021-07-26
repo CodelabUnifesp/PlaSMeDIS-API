@@ -1,6 +1,6 @@
 from flask_cors import cross_origin
 from api.util.decorators import token_required
-from api.services.notifications import HandleUserNotification
+from api.service.notifications import HandleUserNotification
 from flask import Blueprint
 
 #TODO: adicionar prefixo para as chamadas

@@ -1,6 +1,6 @@
 from flask_cors import cross_origin
 from api.util.decorators import token_required
-from api.services.forms import FormSocio
+from api.service.forms import FormSocio
 from flask import Blueprint
 
 #TODO: adicionar prefixo para as chamadas

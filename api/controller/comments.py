@@ -1,6 +1,6 @@
 from flask_cors import cross_origin
 from api.util.decorators import token_required
-from api.services.comments import Comentarios, ComentariosPostagem
+from api.service.comments import Comentarios, ComentariosPostagem
 from flask import Blueprint
 
 #TODO: adicionar prefixo para as chamadas

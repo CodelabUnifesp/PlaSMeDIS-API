@@ -1,6 +1,6 @@
 from flask_cors import cross_origin
 from api.util.decorators import token_required
-from api.services.auth import Login, EsqueciSenha
+from api.service.auth import Login, EsqueciSenha
 from flask import Blueprint
 
 #TODO: adicionar prefixo para as chamadas
