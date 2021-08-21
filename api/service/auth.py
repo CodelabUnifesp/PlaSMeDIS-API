@@ -5,7 +5,7 @@ import smtplib
 import random
 from flask import request
 from api import db, app
-from api.model.users import Usuario
+from api.model.database.users import Usuario
 from api.service.users import UserToDict
 
 #TODO: separar POST e GET

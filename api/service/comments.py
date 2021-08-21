@@ -1,7 +1,7 @@
 from flask import request
 from api import db
-from api.model.comments import Comentario
-from api.model.users import Usuario
+from api.model.database.comments import Comentario
+from api.model.database.users import Usuario
 
 #TODO: separar POST e GET
 #TODO: remover verificação de método

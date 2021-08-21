@@ -1,11 +1,15 @@
 import os
 import jwt
 from flask import request
-from api import app
+from api import app, api
 from functools import wraps
+
+parser = api.parser()
+parser.add_argument("Authorization", location="headers")
 
 def token_required(f):
    @wraps(f)
+   @api.expect(parser)
    def decorator(*args, **kwargs):
         token = None
         try:
@@ -33,10 +37,17 @@ def token_required(f):
         return f(*args, **kwargs)
    return decorator
 
-def json_required(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
-        if not request.is_json:
-            return {'message': 'Espected json'}, 400
-        return f(request.get_json(), *args, **kwargs)
-    return decorator
+def json_required(func=None, *, database=None):
+    def json_required_decorator(f):
+        @wraps(f)
+        @api.expect(database)
+        def decorator(*args, **kwargs):
+            if not request.is_json:
+                return {'message': 'Espected json'}, 400
+            return f(request.get_json(), *args, **kwargs)
+        return decorator
+
+    if func is None:
+        return json_required_decorator
+    else:
+        return json_required_decorator(func)

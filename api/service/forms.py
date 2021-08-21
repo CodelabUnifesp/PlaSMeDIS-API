@@ -1,6 +1,6 @@
 from flask import request
 from api import db
-from api.model.forms import Form_Socioeconomico
+from api.model.database.forms import Form_Socioeconomico
 
 #TODO: separar POST e GET
 #TODO: remover verificação de método

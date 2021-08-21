@@ -1,7 +1,7 @@
 from flask import request
 from api import db
-from api.model.users import Usuario, Privilegio, Bairro
-from api.model.notifications import Notificacoes_Conf
+from api.model.database.users import Usuario, Privilegio, Bairro
+from api.model.database.notifications import Notificacoes_Conf
 
 def UserToDict(user: Usuario):
     return {
