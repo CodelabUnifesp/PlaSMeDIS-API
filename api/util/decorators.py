@@ -4,13 +4,9 @@ from flask import request
 from api import app, api
 from functools import wraps
 
-parser = api.parser()
-parser.add_argument("Authorization", location="headers")
-
 def token_required(f):
-   @wraps(f)
-   @api.expect(parser)
-   def decorator(*args, **kwargs):
+    @wraps(f)
+    def decorator(*args, **kwargs):
         token = None
         try:
             token = request.headers['Authorization'].split("Bearer ")[1]
@@ -35,19 +31,32 @@ def token_required(f):
             return {'message': 'There was a error decoding the token'}
 
         return f(*args, **kwargs)
-   return decorator
+    return decorator
 
-def json_required(func=None, *, database=None):
-    def json_required_decorator(f):
+def json_required(f):
+    @wraps(f)
+    def decorator(self, *args, **kwargs):
+        if not request.is_json:
+            return {'message': 'Espected json'}, 400
+        return f(self, request.get_json(), *args, **kwargs)
+    return decorator
+
+def required(response, request=None, token=False):
+    def required_decorator(f):
+        parser = api.parser()
+        if token:
+            parser.add_argument("Authorization", location="headers")
+
         @wraps(f)
-        @api.expect(database)
+        @api.expect(request, parser)
+        @api.marshal_with(response)
         def decorator(*args, **kwargs):
-            if not request.is_json:
-                return {'message': 'Espected json'}, 400
-            return f(request.get_json(), *args, **kwargs)
+            return f(*args, **kwargs)
+        
+        if token:
+            decorator = token_required(decorator)
+        if request:
+            decorator = json_required(decorator)
         return decorator
-
-    if func is None:
-        return json_required_decorator
-    else:
-        return json_required_decorator(func)
+        
+    return required_decorator

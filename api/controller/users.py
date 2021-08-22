@@ -1,17 +1,24 @@
 from flask_cors import cross_origin
-from api.util.decorators import json_required, token_required
+from api.util.decorators import required, token_required
 from api.service.users import Users, Privileges, Bairro, VerifyUsername, GetUserId, PutUserId, DelUserId
 from flask import Blueprint
+from api import api
+from flask_restx import Resource
+import api.model.request.users as request
+import api.model.response.users as response
+import api.model.response.default as default
 
 #TODO: adicionar prefixo para as chamadas
 app = Blueprint('users', __name__, url_prefix='')
+
+users = api.namespace('users', description="Users namespace")
 
 #TODO: separar POST e GET
 #TODO: adicionar json_required POST
 @app.route('/users', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
-def users():
+def userss():
     return Users()
 
 #TODO: criar controller para privilegios?
@@ -32,24 +39,22 @@ def privileges():
 def bairros():
     return Bairro()
 
-@app.route('/users/<id>', methods=['GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def get_user_id(id):
-    return GetUserId(id)
+@users.route('/<int:id>')
+class UserId(Resource):
+    @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+    @required(response=response.user_message, token=True)
+    def get(self, id):
+        return GetUserId(id)
 
-@app.route('/users/<id>', methods=['PUT'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-@json_required
-def put_user_id(data, id):
-    return PutUserId(data, id)
+    @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+    @required(response=default.message, request=request.user_update, token=True)
+    def put(self, data, id):
+        return PutUserId(data, id)
 
-@app.route('/users/<id>', methods=['DELETE'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def del_user_id(id):
-    return DelUserId(id)
+    @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+    @required(response=default.message, token=True)
+    def delete(self, id):
+        return DelUserId(id)
 
 @app.route('/users/username/verify/<username>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
