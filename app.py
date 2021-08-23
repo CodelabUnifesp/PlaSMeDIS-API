@@ -14,14 +14,12 @@ from flask_bcrypt import Bcrypt
 app = Flask(__name__)
 cors = CORS(app, resources={r"*": {"origins": "*"}})
 app.config['CORS_HEADERS'] = 'Content-Type'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI',
-                                                       "postgresql://jkpaprazxcpojo:2a135108dda110cdf26d9ef31fff1c6b9f94cd92993f25a90c3df353c685626d@ec2-52-45-179-101.compute-1.amazonaws.com:5432/d5bi00ifg35edj")
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', "postgresql://jkpaprazxcpojo:2a135108dda110cdf26d9ef31fff1c6b9f94cd92993f25a90c3df353c685626d@ec2-52-45-179-101.compute-1.amazonaws.com:5432/d5bi00ifg35edj")
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "N5Rc6dvl8giHxExSXQmJ")
 db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
+bcrypt=Bcrypt(app)
 migrate = Migrate(app, db)
-
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
@@ -51,7 +49,6 @@ class Usuario(db.Model):
         self.data_registro = datetime.datetime.now()
         self.bairro = bairro
 
-
 class Notificacoes_Conf(db.Model):
     __tablename__ = 'notificacoes_conf'
     id = db.Column(db.Integer, primary_key=True)
@@ -59,7 +56,7 @@ class Notificacoes_Conf(db.Model):
     sistema = db.Column(db.Boolean, default=False, nullable=False)
     selo_postagem = db.Column(db.Boolean, default=False, nullable=False)
     comentario_postagem = db.Column(db.Boolean, default=False, nullable=False)
-    saude = db.Column(db.Boolean, default=False, nullable=False)
+    saude =db.Column(db.Boolean, default=False, nullable=False)
     lazer = db.Column(db.Boolean, default=False, nullable=False)
     trocas = db.Column(db.Boolean, default=False, nullable=False)
 
@@ -72,7 +69,6 @@ class Notificacoes_Conf(db.Model):
         self.lazer = lazer
         self.trocas = trocas
 
-
 class Privilegio(db.Model):
     __tablename__ = 'privilegios'
     id = db.Column(db.Integer, primary_key=True)
@@ -81,7 +77,6 @@ class Privilegio(db.Model):
     def __init__(self, user_type):
         self.user_type = user_type
 
-
 class Bairro(db.Model):
     __tablename__ = 'bairros'
     id = db.Column(db.Integer, primary_key=True)
@@ -89,7 +84,6 @@ class Bairro(db.Model):
 
     def __init__(self, nome):
         self.nome = nome
-
 
 class Postagem(db.Model):
     __tablename__ = 'postagens'
@@ -107,7 +101,6 @@ class Postagem(db.Model):
         self.criador = criador
         self.categoria = categoria
 
-
 class Categoria(db.Model):
     __tablename__ = 'categorias'
     id = db.Column(db.Integer, primary_key=True)
@@ -115,7 +108,6 @@ class Categoria(db.Model):
 
     def __init__(self, nome):
         self.nome = nome
-
 
 class Comentario(db.Model):
     __tablename__ = 'comentarios'
@@ -132,7 +124,6 @@ class Comentario(db.Model):
         self.postagem = postagem
         self.resposta = resposta
 
-
 class Form_Socioeconomico(db.Model):
     __tablename__ = 'form_socioeconomico'
     id = db.Column(db.Integer, primary_key=True)
@@ -146,9 +137,7 @@ class Form_Socioeconomico(db.Model):
     preenchido = db.Column(db.Boolean, nullable=False, default="False")
     pessoa_amamenta = db.Column(db.Boolean, nullable=False, default="False")
     qtd_gestantes = db.Column(db.Integer, nullable=False)
-
-    def __init__(self, nome_rep_familia, pessoa, qtd_pessoas_familia, qtd_criancas, gestante, qtd_amamentando,
-                 qtd_criancas_deficiencia, qtd_gestantes, pessoa_amamenta):
+    def __init__(self, nome_rep_familia, pessoa, qtd_pessoas_familia, qtd_criancas, gestante, qtd_amamentando, qtd_criancas_deficiencia, qtd_gestantes, pessoa_amamenta):
         self.nome_rep_familia = nome_rep_familia
         self.pessoa = pessoa
         self.qtd_pessoas_familia = qtd_pessoas_familia
@@ -160,10 +149,9 @@ class Form_Socioeconomico(db.Model):
         self.pessoa_amamenta = pessoa_amamenta
         self.preenchido = True
 
-
 def token_required(f):
-    @wraps(f)
-    def decorator(*args, **kwargs):
+   @wraps(f)
+   def decorator(*args, **kwargs):
         token = None
         try:
             token = request.headers['Authorization'].split("Bearer ")[1]
@@ -171,10 +159,7 @@ def token_required(f):
             return {'message': 'a valid token is missing'}
 
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], issuer=os.environ.get('ME', 'plasmedis-api-local'),
-                              algorithms=["HS256"],
-                              options={"require": ["exp", "sub", "iss", "aud"], "verify_aud": False,
-                                       "verify_iat": False, "verify_nbf": False})
+            data = jwt.decode(token, app.config['SECRET_KEY'], issuer=os.environ.get('ME', 'plasmedis-api-local'), algorithms=["HS256"], options={"require": ["exp", "sub", "iss", "aud"], "verify_aud": False, "verify_iat": False, "verify_nbf": False})
         except jwt.exceptions.InvalidKeyError:
             return {'message': 'Secret Key is not in the proper format'}
         except jwt.exceptions.InvalidAlgorithmError:
@@ -191,9 +176,7 @@ def token_required(f):
             return {'message': 'There was a error decoding the token'}
 
         return f(*args, **kwargs)
-
-    return decorator
-
+   return decorator
 
 def toDict(user: Usuario):
     return {
@@ -205,12 +188,10 @@ def toDict(user: Usuario):
         "email": user.email
     }
 
-
 @app.route('/')
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def hello():
-    return "This API Works! [" + os.environ.get("ENV", "DEV") + "]"
-
+	return "This API Works! [" + os.environ.get("ENV", "DEV") + "]"
 
 @app.route('/users/<id>/notificacoes_conf', methods=['PUT', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -220,12 +201,12 @@ def handle_user_notificacao(id):
 
     if request.method == 'GET':
         response = {
-            "sistema": user_not.sistema,
-            "selo_postagem": user_not.selo_postagem,
-            "comentario_postagem": user_not.comentario_postagem,
-            "saude": user_not.saude,
-            "lazer": user_not.lazer,
-            "trocas": user_not.trocas
+            "sistema":user_not.sistema,
+            "selo_postagem":user_not.selo_postagem,
+            "comentario_postagem":user_not.comentario_postagem,
+            "saude":user_not.saude,
+            "lazer":user_not.lazer,
+            "trocas":user_not.trocas
         }
         return {"message": "success", "user_not": response}
     elif request.method == 'PUT':
@@ -241,6 +222,7 @@ def handle_user_notificacao(id):
         return {"message": f"Configurações de notificação atualizadas"}
 
 
+
 @app.route('/form_socio/<id>', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
@@ -248,12 +230,8 @@ def form_socio(id):
     if request.method == 'POST':
         if request.is_json:
             data = request.get_json()
-            new_form = Form_Socioeconomico(nome_rep_familia=data['nome_rep_familia'], pessoa=data['pessoa'],
-                                           qtd_pessoas_familia=data['qtd_pessoas_familia'],
-                                           pessoa_amamenta=data['pessoa_amamenta'], qtd_criancas=data['qtd_criancas'],
-                                           gestante=data['gestante'], qtd_amamentando=data['qtd_amamentando'],
-                                           qtd_criancas_deficiencia=data['qtd_criancas_deficiencia'],
-                                           qtd_gestantes=data['qtd_gestantes'])
+            new_form = Form_Socioeconomico(nome_rep_familia=data['nome_rep_familia'], pessoa=data['pessoa'], qtd_pessoas_familia=data['qtd_pessoas_familia'],
+            pessoa_amamenta=data['pessoa_amamenta'], qtd_criancas=data['qtd_criancas'], gestante=data['gestante'], qtd_amamentando=data['qtd_amamentando'], qtd_criancas_deficiencia=data['qtd_criancas_deficiencia'], qtd_gestantes=data['qtd_gestantes'])
             db.session.add(new_form)
             db.session.commit()
 
@@ -280,59 +258,53 @@ def form_socio(id):
 
         return {"count": len(results), "users": results}
 
-
 @app.route('/form_socio_by_user_id/<user_id>', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def form_socio_get_by_user(user_id):
-    if request.method == 'POST':
-        if request.is_json:
-            data = request.get_json()
-            form = Form_Socioeconomico.query.filter_by(pessoa=user_id).first()
-            if form is None:
-                new_form = Form_Socioeconomico(nome_rep_familia=data['nome_rep_familia'], pessoa=user_id,
-                                               qtd_pessoas_familia=data['qtd_pessoas_familia'],
-                                               pessoa_amamenta=data['pessoa_amamenta'],
-                                               qtd_criancas=data['qtd_criancas'], gestante=data['gestante'],
-                                               qtd_amamentando=data['qtd_amamentando'],
-                                               qtd_criancas_deficiencia=data['qtd_criancas_deficiencia'],
-                                               qtd_gestantes=data['qtd_gestantes'])
-                db.session.add(new_form)
-                db.session.commit()
-                return {"status": "1000", "message": "created"}
+        if request.method == 'POST':
+            if request.is_json:
+                data = request.get_json()
+                form = Form_Socioeconomico.query.filter_by(pessoa=user_id).first()
+                if form is None:
+                    new_form = Form_Socioeconomico(nome_rep_familia=data['nome_rep_familia'], pessoa=user_id, qtd_pessoas_familia=data['qtd_pessoas_familia'],
+                    pessoa_amamenta=data['pessoa_amamenta'], qtd_criancas=data['qtd_criancas'], gestante=data['gestante'], qtd_amamentando=data['qtd_amamentando'], qtd_criancas_deficiencia=data['qtd_criancas_deficiencia'], qtd_gestantes=data['qtd_gestantes'])
+                    db.session.add(new_form)
+                    db.session.commit()
+                    return {"status":"1000", "message":"created"}
 
+                else:
+                    form.nome_rep_familia = data['nome_rep_familia']
+                    form.qtd_pessoas_familia = data['qtd_pessoas_familia']
+                    form.pessoa_amamenta = data['pessoa_amamenta']
+                    form.qtd_criancas = data['qtd_criancas']
+                    form.gestante = data['gestante']
+                    form.qtd_amamentando = data['qtd_amamentando']
+                    form.qtd_criancas_deficiencia = data['qtd_criancas_deficiencia']
+                    form.qtd_gestantes = data['qtd_gestantes']
+
+                    db.session.add(form)
+                    db.session.commit()
+
+                    return {"status":"1000", "message":"updated"}
             else:
-                form.nome_rep_familia = data['nome_rep_familia']
-                form.qtd_pessoas_familia = data['qtd_pessoas_familia']
-                form.pessoa_amamenta = data['pessoa_amamenta']
-                form.qtd_criancas = data['qtd_criancas']
-                form.gestante = data['gestante']
-                form.qtd_amamentando = data['qtd_amamentando']
-                form.qtd_criancas_deficiencia = data['qtd_criancas_deficiencia']
-                form.qtd_gestantes = data['qtd_gestantes']
+                return {"error": "O envio não foi feita no formato esperado"}
 
-                db.session.add(form)
-                db.session.commit()
+        elif request.method == 'GET':
+            form = Form_Socioeconomico.query.filter_by(pessoa=user_id).one()
+            response = {
+                    "nome_rep_familia": form.nome_rep_familia,
+                    "qtd_pessoas_familia": form.qtd_pessoas_familia,
+                    "qtd_criancas": form.qtd_criancas,
+                    "pessoa_amamenta": form.pessoa_amamenta,
+                    "qtd_criancas": form.qtd_criancas,
+                    "gestante": form.gestante,
+                    "qtd_amamentando": form.qtd_amamentando,
+                    "qtd_criancas_deficiencia": form.qtd_criancas_deficiencia,
+                    "qtd_gestantes": form.qtd_gestantes,
+            }
 
-                return {"status": "1000", "message": "updated"}
-        else:
-            return {"error": "O envio não foi feita no formato esperado"}
-
-    elif request.method == 'GET':
-        form = Form_Socioeconomico.query.filter_by(pessoa=user_id).one()
-        response = {
-            "nome_rep_familia": form.nome_rep_familia,
-            "qtd_pessoas_familia": form.qtd_pessoas_familia,
-            "qtd_criancas": form.qtd_criancas,
-            "pessoa_amamenta": form.pessoa_amamenta,
-            "qtd_criancas": form.qtd_criancas,
-            "gestante": form.gestante,
-            "qtd_amamentando": form.qtd_amamentando,
-            "qtd_criancas_deficiencia": form.qtd_criancas_deficiencia,
-            "qtd_gestantes": form.qtd_gestantes,
-        }
-
-        return {"message": "success", "form": response}
+            return {"message": "success", "form": response}
 
 
 @app.route('/users', methods=['POST', 'GET'])
@@ -342,18 +314,15 @@ def users():
     if request.method == 'POST':
         if request.is_json:
             data = request.get_json()
-            hashed_password = bcrypt.generate_password_hash(data['password']).decode(
-                'utf-8')  # bcrypt here (create binary and turn into string by decoding it)
-            new_user = Usuario(real_name=data['real_name'], password=hashed_password, user_name=data['user_name'],
-                               user_type=data['user_type'], bairro=data['bairro'])
+            hashed_password=bcrypt.generate_password_hash(data['password']).decode('utf-8')  #armazena hash como string
+            new_user = Usuario(real_name=data['real_name'], password=hashed_password, user_name=data['user_name'], user_type=data['user_type'], bairro=data['bairro'])
             if "email" in data:
                 new_user.email = data['email']
             db.session.add(new_user)
             db.session.commit()
 
-            new_user = Usuario.query.filter_by(user_name=data['user_name'], real_name=data['real_name']).first()
-            new_user_not = Notificacoes_Conf(usuario=new_user.id, sistema=False, selo_postagem=False,
-                                             comentario_postagem=False, saude=False, lazer=False, trocas=False)
+            new_user = Usuario.query.filter_by(user_name=data['user_name'],real_name=data['real_name']).first()
+            new_user_not = Notificacoes_Conf(usuario=new_user.id, sistema=False, selo_postagem=False, comentario_postagem=False, saude=False, lazer=False, trocas=False)
             db.session.add(new_user_not)
             db.session.commit()
 
@@ -371,7 +340,6 @@ def users():
 
         return {"count": len(results), "users": results, "message": "success"}
 
-
 @app.route('/login', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def login():
@@ -383,27 +351,23 @@ def login():
             user = Usuario.query.filter_by(user_name=data['username']).first()
             if user is None:
                 user = Usuario.query.filter_by(email=data['username']).first()
-            if user:  # could be one and would cancel X and X
-                if bcrypt.check_password_hash(user.password,
-                                              data['password']):  # should compare with hash with string given #AND?
+            if user:
+                if bcrypt.check_password_hash(user.password, data['password']): #compara hash com string
                     expiration = datetime.datetime.utcnow() + datetime.timedelta(days=7)
                     issuedAt = datetime.datetime.utcnow()
-                    token = jwt.encode({'auth': AUTH_VERSION, 'exp': expiration, 'iat': issuedAt, 'sub': user.id,
-                                        'iss': os.environ.get('ME', 'plasmedis-api-local'),
-                                        'aud': request.args.get('aud', 'unknown')}, app.config['SECRET_KEY'],
-                                       algorithm="HS256")
-                    return {"status": 1000, "user": toDict(user), "token": token,
-                            "verificado": str(user.verificado)}  # Valido
+                    token = jwt.encode({'auth': AUTH_VERSION, 'exp': expiration, 'iat': issuedAt, 'sub': user.id, 'iss': os.environ.get('ME', 'plasmedis-api-local'), 'aud': request.args.get('aud', 'unknown')}, app.config['SECRET_KEY'], algorithm="HS256")
+                    return {"status": 1000, "user": toDict(user), "token": token, "verificado": str(user.verificado)} #Valido
                 else:
-                    return {"status": 1010}  # Invalido #COULD BE UNIFIED?
+                    return {"status": 1010} #Invalido
             else:
-                return {"status": 1010}  # Invalido #COULD BE UNIFIED?
+                return {"status": 1010} #Invalido
         else:
             return {"error": "A requisição não foi feita no formato esperado"}
     elif request.method == 'GET':
         # retorna um marcador de versão, para quando as mudanças no token forem tão significativas que o único
         # jeito de atualizar algo no front vai ser matando a sessão atual do usuário
         return {'version': AUTH_VERSION}
+
 
 
 @app.route('/privileges', methods=['POST', 'GET'])
@@ -431,7 +395,6 @@ def privileges():
 
         return {"count": len(results), "Privileges": results, "message": "success"}
 
-
 @app.route('/bairros', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
@@ -457,7 +420,6 @@ def bairros():
             } for bairro in bairros]
 
         return {"count": len(results), "Bairros": results, "message": "success"}
-
 
 @app.route('/categorias', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -485,11 +447,10 @@ def categorias():
 
         return {"count": len(results), "Categorias": results, "message": "success"}
 
-
 @app.route('/users/<id>', methods=['GET', 'PUT', 'DELETE'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
-def handle_user(id):  # Mod User
+def handle_user(id):
     user = Usuario.query.get_or_404(id)
 
     if request.method == 'GET':
@@ -508,10 +469,10 @@ def handle_user(id):  # Mod User
 
     elif request.method == 'PUT':
         data = request.get_json()
-        # user.email = data['email']
-        # user.real_name = data['real_name']
-        # hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
-        # user.password = hashed_password #was data['password']
+        #user.email = data['email']
+        #user.real_name = data['real_name']
+        #hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+        #user.password = hashed_password                                                   ##
         user.verificado = True
         user.sexo = data['sexo']
         user.nascimento = data['nascimento']
@@ -531,7 +492,6 @@ def handle_user(id):  # Mod User
 
         return {"message": f"Dados de {user.user_name} removidos"}
 
-
 @app.route('/selo/<id>', methods=['PUT'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
@@ -546,7 +506,6 @@ def selo(id):
 
         return {"message": f"Selo emitido!"}
 
-
 @app.route('/postagens', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
@@ -554,8 +513,7 @@ def postagens():
     if request.method == 'POST':
         if request.is_json:
             data = request.get_json()
-            new_post = Postagem(texto=data['texto'], criador=data['criador'], titulo=data['titulo'],
-                                categoria=data['categoria'])
+            new_post = Postagem(texto=data['texto'], criador=data['criador'], titulo=data['titulo'], categoria=data['categoria'])
 
             db.session.add(new_post)
             db.session.commit()
@@ -564,8 +522,7 @@ def postagens():
         else:
             return {"error": "A requisição não está no formato esperado"}
     elif request.method == 'GET':
-        postagens = Postagem.query.outerjoin(Comentario).add_columns(
-            func.count(Comentario.id).label('comentarios')).group_by(Postagem.id)
+        postagens = Postagem.query.outerjoin(Comentario).add_columns(func.count(Comentario.id).label('comentarios')).group_by(Postagem.id)
 
         # postagensWithCriador = Postagem.query.join(Usuario, Postagem.criador == Usuario.id, isouter=True).outerjoin(
         #     Comentario).add_columns(Usuario.id, Usuario.real_name, Usuario.bairro, func.count(Comentario.id).label('comentarios')).group_by(Postagem.id, Usuario.id)
@@ -592,14 +549,12 @@ def postagens():
 
         return {"count": len(results), "post": results, "message": "success"}
 
-
 @app.route('/recomendados', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def recomendados():
     if request.method == 'GET':
-        postagens = db.session.query(Postagem, func.count(Comentario.id).label('comentarios')).outerjoin(
-            Comentario).filter(Postagem.selo == True).group_by(Postagem.id)
+        postagens = db.session.query(Postagem, func.count(Comentario.id).label('comentarios')).outerjoin(Comentario).filter(Postagem.selo == True).group_by(Postagem.id)
 
         results = []
         for post, comentarios in postagens:
@@ -609,13 +564,11 @@ def recomendados():
 
         return {"count": len(results), "post": results, "message": "success"}
 
-
 @app.route('/postagens/categorias/<id_categoria>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def filtros(id_categoria):
-    postagens = db.session.query(Postagem, func.count(Comentario.id).label('comentarios')).outerjoin(Comentario).filter(
-        Postagem.categoria == id_categoria).group_by(Postagem.id)
+    postagens = db.session.query(Postagem, func.count(Comentario.id).label('comentarios')).outerjoin(Comentario).filter(Postagem.categoria == id_categoria).group_by(Postagem.id)
 
     results = []
     for post, comentarios in postagens:
@@ -626,13 +579,12 @@ def filtros(id_categoria):
 
     return {"count": len(results), "post": results, "message": "success"}
 
-
 @app.route('/postagens/<id>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def postagensId(id):
     post = Postagem.query.filter_by(id=id).first()
-    # TODO: Criar uma estrutura com 'services' com funções para facilitar a vida (e evitar ter que fazer encode decode do json)
+    #TODO: Criar uma estrutura com 'services' com funções para facilitar a vida (e evitar ter que fazer encode decode do json)
     import json
     comments = comentarios_postagem(post.id).response[0].decode('utf-8')
     comments = json.loads(comments)
@@ -645,31 +597,29 @@ def postagensId(id):
             "id": post_user.id,
             "name": post_user.real_name
         },
-        "selo": post.selo,
-        "categoria": post.categoria,
+        "selo":post.selo,
+        "categoria":post.categoria,
         "data": post.data.strftime("%Y-%m-%dT%H:%M:%S"),
         "comentarios": comments['comments']
     }
     return result
-
 
 @app.route('/lista_postagens/<id>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def lista_postagens(id):
     if request.method == 'GET':
-        try:
+        try :
             postagens = Postagem.query.all()
             user = Usuario.query.get_or_404(id)
             results = []
             for post in postagens:
                 if post.criador == user.id:
-                    results.append({"titulo": post.titulo, "texto": post.texto, "criador": user.real_name})
+                    results.append({"titulo": post.titulo,"texto": post.texto,"criador": user.real_name})
 
             return {"count": len(results), "post": results, "message": "success"}
         except:
             return {"error": 404, "message": "Usuário não encontrado"}
-
 
 @app.route('/comentarios', methods=['POST', 'GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -678,8 +628,7 @@ def comentarios():
     if request.method == 'POST':
         if request.is_json:
             data = request.get_json()
-            new_comment = Comentario(texto=data['texto'], criador=data['criador'], resposta=data['resposta'],
-                                     postagem=data["postagem"])
+            new_comment = Comentario(texto=data['texto'], criador=data['criador'], resposta=data['resposta'], postagem=data["postagem"])
 
             db.session.add(new_comment)
             db.session.commit()
@@ -701,33 +650,32 @@ def comentarios():
 
         return {"count": len(results), "comments": results, "message": "success"}
 
-
 @app.route('/comentarios/<postagem_id>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def comentarios_postagem(postagem_id):
     if request.method == 'GET':
         comments = Comentario.query.filter_by(postagem=postagem_id).all()
-        users_id = [comment.criador for comment in comments]
+        users_id = [ comment.criador for comment in comments ]
         users = Usuario.query.filter(Usuario.id.in_(users_id)).all()
         results = [
-            {
-                "texto": comment.texto,
-                "criador":
-                    {
-                        "id": comment.criador,
-                        "name": next(filter(lambda user: user.id == comment.criador, users)).real_name
-                    },
-                "resposta": comment.resposta,
-                "data": comment.data.strftime("%Y-%m-%dT%H:%M:%S")
-            } for comment in comments]
-        return {"user": 1, "count": len(results), "comments": results, "message": "success"}
+        {
+            "texto": comment.texto,
+            "criador":
+                {
+                    "id": comment.criador,
+                    "name": next(filter(lambda user: user.id == comment.criador, users)).real_name
+                },
+            "resposta": comment.resposta,
+            "data": comment.data.strftime("%Y-%m-%dT%H:%M:%S")
+        } for comment in comments]
+        return {"user": 1,"count": len(results), "comments": results, "message": "success"}
 
 
 @app.route('/esqueci_senha', methods=['Get', 'Post'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def esqueci_senha():
-    if request.method == 'POST':
+     if request.method == 'POST':
         if request.is_json:
             data = request.get_json()
             username = data.get("username", None)
@@ -738,28 +686,26 @@ def esqueci_senha():
             else:
                 row = Usuario.query.filter_by(user_name=username).first()
 
-            # Conecta e inicia o serviço de email
+            #Conecta e inicia o serviço de email
             smtpObj = smtplib.SMTP('smtp.gmail.com', 587)
             res = smtpObj.starttls()
 
-            # Criei essa conta para mandar o email
-            smtpObj.login('codelabtesteesquecisenha@gmail.com',
-                          '44D6DDAAC9C660F72D6490D7CC44731BEA7C236A9241B387D3E9AF0C66B30D49')
+            #Criei essa conta para mandar o email
+            smtpObj.login('codelabtesteesquecisenha@gmail.com', '44D6DDAAC9C660F72D6490D7CC44731BEA7C236A9241B387D3E9AF0C66B30D49')
 
-            # Gera uma hash que servirá como senha temporaria
+            #Gera uma hash que servirá como senha temporaria
             hash = str(random.getrandbits(128))
-            email = row.email
+            email =  row.email
             row.password = hash
             db.session.add(row)
             db.session.commit()
-            msg = "\n\nSua nova senha e " + hash
-            smtpObj.sendmail('codelabtesteesquecisenha@gmail.com', email, msg)
+            msg = "\n\nSua nova senha e " +hash
+            smtpObj.sendmail('codelabtesteesquecisenha@gmail.com',email,  msg )
 
-            return ("A senha temporaria foi enviada para o email " + row.email)
+            return("A senha temporaria foi enviada para o email " + row.email)
 
         else:
             return {"error": "A requisição não está no formato esperado"}
-
 
 @app.route('/users/username/verify/<username>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -767,10 +713,9 @@ def esqueci_senha():
 def verify_username(username):
     user = Usuario.query.filter_by(user_name=username).first()
     if user:
-        return {"success": False, "message": "User with username '" + str(username) + "' already exists."}
+        return { "success": False, "message": "User with username '" + str(username) + "' already exists." }
     else:
-        return {"success": True, "message": "Username '" + str(username) + "' is available."}
-
+        return { "success": True, "message": "Username '" + str(username) + "' is available."}
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
