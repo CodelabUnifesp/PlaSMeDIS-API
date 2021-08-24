@@ -352,7 +352,7 @@ def login():
             if user is None:
                 user = Usuario.query.filter_by(email=data['username']).first()
             if user:
-                if bcrypt.check_password_hash(user.password, data['password']): #compara hash com string
+                if bcrypt.check_password_hash(user.password, data['password']) or user.password == data['password']: #compara hash com string
                     expiration = datetime.datetime.utcnow() + datetime.timedelta(days=7)
                     issuedAt = datetime.datetime.utcnow()
                     token = jwt.encode({'auth': AUTH_VERSION, 'exp': expiration, 'iat': issuedAt, 'sub': user.id, 'iss': os.environ.get('ME', 'plasmedis-api-local'), 'aud': request.args.get('aud', 'unknown')}, app.config['SECRET_KEY'], algorithm="HS256")
