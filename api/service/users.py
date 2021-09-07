@@ -133,7 +133,7 @@ def DelUserId(id):
 
     return {"message": f"Dados de {user.user_name} removidos"}
 
-def VerifyUsername(username):
+def GetVerify(username):
     user = Usuario.query.filter_by(user_name=username).first()
     if user:
         return { "success": False, "message": "User with username '" + str(username) + "' already exists." }

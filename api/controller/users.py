@@ -1,6 +1,6 @@
 from flask_cors import cross_origin
 from api.util.decorators import required, token_required
-from api.service.users import GetUsers, PostUsers, Privileges, Bairro, VerifyUsername, GetUserId, PutUserId, DelUserId
+from api.service.users import GetUsers, GetVerify, PostUsers, Privileges, Bairro, GetUserId, PutUserId, DelUserId
 from flask import Blueprint
 from api import api
 from flask_restx import Resource
@@ -59,8 +59,9 @@ class UserId(Resource):
     def delete(self, id):
         return DelUserId(id)
 
-@app.route('/users/username/verify/<username>', methods=['GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def verify_username(username):
-    return VerifyUsername(username)
+@users.route("/username/verify/<string:username>")
+class Verify(Resource):
+    @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+    @required(response=default.success_message, token=True)
+    def get(self, username):
+        return GetVerify(username)
