@@ -13,38 +13,30 @@ def UserToDict(user: Usuario):
         "email": user.email
     }
 
-#TODO: separar POST e GET
-#TODO: remover verificação de método
-#TODO: remover verificação de json POST
 #TODO: padronizar respostas dos endpoints?
-def Users():
-    if request.method == 'POST':
-        if request.is_json:
-            data = request.get_json()
-            new_user = Usuario(real_name=data['real_name'], password=data['password'], user_name=data['user_name'], user_type=data['user_type'], bairro=data['bairro'])
-            if "email" in data:
-                new_user.email = data['email']
-            db.session.add(new_user)
-            db.session.commit()
-            
-            new_user = Usuario.query.filter_by(user_name=data['user_name'],real_name=data['real_name']).first()
-            new_user_not = Notificacoes_Conf(usuario=new_user.id, sistema=False, selo_postagem=False, comentario_postagem=False, saude=False, lazer=False, trocas=False)
-            db.session.add(new_user_not)
-            db.session.commit()
+def PostUsers(data):
+    new_user = Usuario(real_name=data['real_name'], password=data['password'], user_name=data['user_name'], user_type=data['user_type'], bairro=data['bairro'])
+    if "email" in data:
+        new_user.email = data['email']
+    db.session.add(new_user)
+    db.session.commit()
+    
+    new_user = Usuario.query.filter_by(user_name=data['user_name'],real_name=data['real_name']).first()
+    new_user_not = Notificacoes_Conf(usuario=new_user.id, sistema=False, selo_postagem=False, comentario_postagem=False, saude=False, lazer=False, trocas=False)
+    db.session.add(new_user_not)
+    db.session.commit()
 
-            return {"message": f"Usuario criado", "user": new_user.id}
-        else:
-            return {"error": "A requisição não foi feita no formato esperado"}
+    return {"message": f"Usuario criado", "user": new_user.id}
 
-    elif request.method == 'GET':
-        users = Usuario.query.all()
-        results = [
-            {
-                "user_name": user.user_name,
-                "email": user.email
-            } for user in users]
+def GetUsers():    
+    users = Usuario.query.all()
+    results = [
+        {
+            "user_name": user.user_name,
+            "email": user.email
+        } for user in users]
 
-        return {"count": len(results), "users": results, "message": "success"}
+    return {"count": len(results), "users": results, "message": "success"}
 
 #TODO: separar POST e GET
 #TODO: remover verificação de método

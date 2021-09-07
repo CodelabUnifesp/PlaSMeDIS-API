@@ -1,6 +1,6 @@
 from flask_cors import cross_origin
 from api.util.decorators import required, token_required
-from api.service.users import Users, Privileges, Bairro, VerifyUsername, GetUserId, PutUserId, DelUserId
+from api.service.users import GetUsers, PostUsers, Privileges, Bairro, VerifyUsername, GetUserId, PutUserId, DelUserId
 from flask import Blueprint
 from api import api
 from flask_restx import Resource
@@ -13,13 +13,16 @@ app = Blueprint('users', __name__, url_prefix='')
 
 users = api.namespace('users', description="Users namespace")
 
-#TODO: separar POST e GET
-#TODO: adicionar json_required POST
-@app.route('/users', methods=['POST', 'GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def userss():
-    return Users()
+@users.route("")
+class User(Resource):
+    @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+    @required(response=response.user_email_list, token=True)
+    def get(self):
+        return GetUsers()
+    @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+    @required(response=response.user_create_message, request=response.user_create, token=True)
+    def post(self, data):
+        return PostUsers(data)
 
 #TODO: criar controller para privilegios?
 #TODO: separar POST e GET
