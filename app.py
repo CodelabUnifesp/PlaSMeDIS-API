@@ -1,7 +1,7 @@
 import os
 from flask_cors import cross_origin
 from api import app
-from api.controller import users, auth, forms, notifications, comments, posts
+from api.controller import users, auth, forms, notifications, comments, posts, privileges
 
 app.register_blueprint(users.app)
 app.register_blueprint(auth.app)
