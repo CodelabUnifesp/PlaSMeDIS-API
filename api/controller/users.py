@@ -1,6 +1,6 @@
 from flask_cors import cross_origin
 from api.util.decorators import required, token_required
-from api.service.users import GetUsers, GetVerify, PostUsers, Privileges, Bairro, GetUserId, PutUserId, DelUserId
+from api.service.users import GetUsers, GetVerify, PostUsers, Privileges, Bairros, GetUserId, PutUserId, DelUserId
 from flask import Blueprint
 from api import api
 from flask_restx import Resource
@@ -40,7 +40,7 @@ def privileges():
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 @token_required
 def bairros():
-    return Bairro()
+    return Bairros()
 
 @users.route('/<int:id>')
 class UserId(Resource):
