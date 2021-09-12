@@ -4,9 +4,10 @@ from flask import request
 from api import app
 from functools import wraps
 
+
 def token_required(f):
-   @wraps(f)
-   def decorator(*args, **kwargs):
+    @wraps(f)
+    def decorator(*args, **kwargs):
         token = None
         try:
             token = request.headers['Authorization'].split("Bearer ")[1]
@@ -14,7 +15,10 @@ def token_required(f):
             return {'message': 'a valid token is missing'}
 
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'], issuer=os.environ.get('ME', 'plasmedis-api-local'), algorithms=["HS256"], options={"require": ["exp", "sub", "iss", "aud"], "verify_aud": False, "verify_iat": False, "verify_nbf": False})
+            data = jwt.decode(token, app.config['SECRET_KEY'], issuer=os.environ.get('ME', 'plasmedis-api-local'),
+                              algorithms=["HS256"],
+                              options={"require": ["exp", "sub", "iss", "aud"], "verify_aud": False,
+                                       "verify_iat": False, "verify_nbf": False})
         except jwt.exceptions.InvalidKeyError:
             return {'message': 'Secret Key is not in the proper format'}
         except jwt.exceptions.InvalidAlgorithmError:
@@ -31,7 +35,9 @@ def token_required(f):
             return {'message': 'There was a error decoding the token'}
 
         return f(*args, **kwargs)
-   return decorator
+
+    return decorator
+
 
 def json_required(f):
     @wraps(f)
@@ -39,4 +45,5 @@ def json_required(f):
         if not request.is_json:
             return {'message': 'Espected json'}, 400
         return f(request.get_json(), *args, **kwargs)
+
     return decorator
