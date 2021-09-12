@@ -17,7 +17,6 @@ def login():
 #TODO: adicionar json_required POST
 @app.route('/esqueci_senha', methods=['Get', 'Post'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
 def esqueci_senha():
     return EsqueciSenha()
 
