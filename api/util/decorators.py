@@ -39,7 +39,9 @@ def token_required(f):
             return {'message': 'There was a error decoding the token'}
 
         return f(*args, **kwargs)
+
     return decorator
+
 
 def json_required(f):
     @wraps(f)
