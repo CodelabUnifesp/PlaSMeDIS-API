@@ -10,11 +10,13 @@ app.register_blueprint(notifications.app)
 app.register_blueprint(comments.app)
 app.register_blueprint(posts.app)
 
-#TODO: Mover para controller
+
+# TODO: Mover para controller
 @app.route('/')
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
 def hello():
-	return "This API Works! [" + os.environ.get("ENV", "DEV") + "]"
+    return "This API Works! [" + os.environ.get("ENV", "DEV") + "]"
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
