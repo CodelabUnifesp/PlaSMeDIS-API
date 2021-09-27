@@ -9,6 +9,7 @@ import jwt
 import datetime
 from functools import wraps
 from sqlalchemy import func, sql
+from flask_bcrypt import Bcrypt
 
 app = Flask(__name__)
 cors = CORS(app, resources={r"*": {"origins": "*"}})
@@ -17,13 +18,14 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URI', "postgres
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "N5Rc6dvl8giHxExSXQmJ")
 db = SQLAlchemy(app)
+bcrypt=Bcrypt(app)
 migrate = Migrate(app, db)
 
 class Usuario(db.Model):
     __tablename__ = 'usuarios'
     id = db.Column(db.Integer, primary_key=True)
     real_name = db.Column(db.String(80), nullable=False)
-    user_name = db.Column(db.String(80), unique=True, nullable=False) 
+    user_name = db.Column(db.String(80), unique=True, nullable=False)
     password = db.Column(db.String(80), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=True)
     verificado = db.Column(db.Boolean, default=False, nullable=False)
@@ -287,7 +289,7 @@ def form_socio_get_by_user(user_id):
                     return {"status":"1000", "message":"updated"}
             else:
                 return {"error": "O envio não foi feita no formato esperado"}
-        
+
         elif request.method == 'GET':
             form = Form_Socioeconomico.query.filter_by(pessoa=user_id).one()
             response = {
@@ -312,12 +314,13 @@ def users():
     if request.method == 'POST':
         if request.is_json:
             data = request.get_json()
-            new_user = Usuario(real_name=data['real_name'], password=data['password'], user_name=data['user_name'], user_type=data['user_type'], bairro=data['bairro'])
+            hashed_password=bcrypt.generate_password_hash(data['password']).decode('utf-8')  #armazena hash como string
+            new_user = Usuario(real_name=data['real_name'], password=hashed_password, user_name=data['user_name'], user_type=data['user_type'], bairro=data['bairro'])
             if "email" in data:
                 new_user.email = data['email']
             db.session.add(new_user)
             db.session.commit()
-            
+
             new_user = Usuario.query.filter_by(user_name=data['user_name'],real_name=data['real_name']).first()
             new_user_not = Notificacoes_Conf(usuario=new_user.id, sistema=False, selo_postagem=False, comentario_postagem=False, saude=False, lazer=False, trocas=False)
             db.session.add(new_user_not)
@@ -349,7 +352,7 @@ def login():
             if user is None:
                 user = Usuario.query.filter_by(email=data['username']).first()
             if user:
-                if user.password == data['password']:
+                if bcrypt.check_password_hash(user.password, data['password']) or user.password == data['password']: #compara hash com string
                     expiration = datetime.datetime.utcnow() + datetime.timedelta(days=7)
                     issuedAt = datetime.datetime.utcnow()
                     token = jwt.encode({'auth': AUTH_VERSION, 'exp': expiration, 'iat': issuedAt, 'sub': user.id, 'iss': os.environ.get('ME', 'plasmedis-api-local'), 'aud': request.args.get('aud', 'unknown')}, app.config['SECRET_KEY'], algorithm="HS256")
@@ -468,7 +471,8 @@ def handle_user(id):
         data = request.get_json()
         #user.email = data['email']
         #user.real_name = data['real_name']
-        #user.password = data['password']
+        #hashed_password = bcrypt.generate_password_hash(data['password']).decode('utf-8')
+        #user.password = hashed_password                                                   ##
         user.verificado = True
         user.sexo = data['sexo']
         user.nascimento = data['nascimento']
