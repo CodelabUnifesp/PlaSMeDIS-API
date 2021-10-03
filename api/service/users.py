@@ -28,7 +28,7 @@ def PostUsers(data):
 
     return {"message": f"Usuario criado", "user": new_user.id}
 
-def GetUsers():    
+def GetUsers():
     users = Usuario.query.all()
     results = [
         {

@@ -14,4 +14,5 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', "N5Rc6dvl8giHxExSXQmJ")
 app.config['RESTX_MASK_SWAGGER'] = False
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
 api = Api(app, version="2.0", title="Plasmedis API", description="Plasmedis API", doc="/docs")
