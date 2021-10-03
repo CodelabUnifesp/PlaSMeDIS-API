@@ -1,6 +1,6 @@
 from flask import request
 from api import db
-from api.model.notifications import Notificacoes_Conf
+from api.model.database.notifications import Notificacoes_Conf
 
 #TODO: separar PUT e GET
 #TODO: remover verificação de método

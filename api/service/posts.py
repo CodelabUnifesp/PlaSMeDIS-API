@@ -1,7 +1,7 @@
 from flask import request
 from api import db
-from api.model.posts import Postagem, Categoria
-from api.model.users import Usuario
+from api.model.database.posts import Postagem, Categoria
+from api.model.database.users import Usuario
 from api.service.comments import ComentariosPostagem
 
 #TODO: separar POST e GET
