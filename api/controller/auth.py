@@ -1,22 +1,30 @@
 from flask_cors import cross_origin
-from api.util.decorators import token_required
-from api.service.auth import Login, EsqueciSenha
-from flask import Blueprint
+from api.util.decorators import required
+from api.service.auth import *
+from api import api
+from flask_restx import Resource
+import api.model.request.auth as request
+import api.model.response.auth as response
+import api.model.response.default as default
 
-#TODO: adicionar prefixo para as chamadas
-app = Blueprint('auth', __name__, url_prefix='')
+auth = api.namespace('auth', description="Auth namespace")
 
-#TODO: separar POST e GET
-#TODO: adicionar json_required POST
-@app.route('/login', methods=['POST', 'GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-def login():
-    return Login()
+@auth.route("/login")
+class Login(Resource):
+     @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+     @required(response=response.version, token=False)
+     def get(self):
+        return GetLogin()
 
-#TODO: separar POST e GET
-#TODO: adicionar json_required POST
-@app.route('/esqueci_senha', methods=['Get', 'Post'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-def esqueci_senha():
-    return EsqueciSenha()
+     @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+     @required(response=response.login_response, request=request.credentials, token=False)
+     def post(self, data):
+        return PostLogin(data)
 
+
+@auth.route("/forgotpassword")
+class ForgotPassword(Resource):
+    @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
+    @required(response=default.message, request=request.forgot_password, token=False)
+    def post(self, data):
+        return PostEsqueciSenha(data)

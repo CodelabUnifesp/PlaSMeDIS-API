@@ -4,7 +4,6 @@ from api import app
 from api.controller import users, auth, forms, notifications, comments, posts, privileges
 
 app.register_blueprint(users.app)
-app.register_blueprint(auth.app)
 app.register_blueprint(forms.app)
 app.register_blueprint(notifications.app)
 app.register_blueprint(comments.app)
