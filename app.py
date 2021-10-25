@@ -679,30 +679,32 @@ def esqueci_senha():
      if request.method == 'POST':
         if request.is_json:
             data = request.get_json()
-            username = data.get("username", None)
-            email = data.get("email", None)
+            username_or_email = data.get("username_or_email", None)
 
-            if username is None or username == '':
-                row = Usuario.query.filter_by(email=email).first()
+            if username_or_email is not None and username_or_email != '':
+                row = Usuario.query.filter_by(user_name=username_or_email).first()
                 if row is None:
-                    return f"O email \"{email}\" não existe"
+                    row = Usuario.query.filter_by(email=username_or_email).first()
+                    if row is None:
+                        return f"O nome de usuário/e-mail \"{username_or_email}\" não existe"
             else:
-                row = Usuario.query.filter_by(user_name=username).first()
-                if row is None:
-                    return f"O nome de usuário \"{username}\" não existe"
+                return "A requisição não está no formato esperado"
 
 
-            #Conecta e inicia o serviço de email
+            # Conecta e inicia o serviço de email
             smtpObj = smtplib.SMTP('smtp.gmail.com', 587)
             res = smtpObj.starttls()
 
-            #Criei essa conta para mandar o email
-            # https://stackoverflow.com/questions/54657006/smtpauthenticationerror-5-7-14-please-log-n5-7-14-in-via-your-web-browser/56809076#56809076
-            smtpObj.login('codelabtesteesquecisenha@gmail.com', '44D6DDAAC9C660F72D6490D7CC44731BEA7C236A9241B387D3E9AF0C66B30D49')
+            try:
+                # Criei essa conta para mandar o email
+                # https://stackoverflow.com/questions/54657006/smtpauthenticationerror-5-7-14-please-log-n5-7-14-in-via-your-web-browser/56809076#56809076
+                smtpObj.login('codelabtesteesquecisenha@gmail.com', '44D6DDAAC9C660F72D6490D7CC44731BEA7C236A9241B387D3E9AF0C66B30D49')
+            except:
+                return "Não foi possível redefinir a senha. Contate um administrador."
 
             #Gera uma hash que servirá como senha temporaria
             hash = str(random.getrandbits(128))[:11]
-            email =  row.email
+            email = row.email
             row.password = hash
             db.session.add(row)
             db.session.commit()
@@ -713,13 +715,13 @@ def esqueci_senha():
             msg['To'] = email
             body = MIMEText("A sua nova senha é "+hash)
             msg.attach(body) 
-            smtpObj.sendmail('codelabtesteesquecisenha@gmail.com',email,  msg.as_string())
+            smtpObj.sendmail('codelabtesteesquecisenha@gmail.com', email,  msg.as_string())
 
 
-            return("A senha temporária foi enviada para o email: " + row.email)
+            return f"A senha temporária foi enviada para o email: {row.email}"
 
         else:
-            return {"error": "A requisição não está no formato esperado"}
+            return "A requisição não está no formato esperado"
 
 @app.route('/users/username/verify/<username>', methods=['GET'])
 @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
@@ -730,6 +732,7 @@ def verify_username(username):
         return { "success": False, "message": "User with username '" + str(username) + "' already exists." }
     else:
         return { "success": True, "message": "Username '" + str(username) + "' is available."}
+
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=8000)
