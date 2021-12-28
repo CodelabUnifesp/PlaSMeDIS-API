@@ -1,15 +1,19 @@
-from flask_cors import cross_origin
-from api.util.decorators import token_required
-from api.service.notifications import HandleUserNotification
-from flask import Blueprint
+from api.util.decorators import required
+from api.service.notifications import GetUserNotification, PutUserNotification
+from api import api
+from flask_restx import Resource, cors
+import api.model.response.notifications as response
+import api.model.response.default as default
 
-#TODO: adicionar prefixo para as chamadas
-app = Blueprint('notifications', __name__, url_prefix='')
+notifications = api.namespace('notifications', description="Notifications namespace", decorators=[cors.crossdomain(origin="*")])
 
-#TODO: separar PUT e GET
-#TODO: adicionar json_required PUT
-@app.route('/users/<id>/notificacoes_conf', methods=['PUT', 'GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def handle_user_notificacao(id):
-    return HandleUserNotification(id)
+@notifications.route("/users/<int:id>/conf")
+class NotificationConf(Resource):
+    @required(response=response.notification_message, token=True)
+    def get(self, id):
+        return GetUserNotification(id)
+    
+    @required(response=default.message, request=response.notification, token=True)
+    def put(self, data, id):
+        return PutUserNotification(data, id)
+    
