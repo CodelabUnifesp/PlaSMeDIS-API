@@ -1,6 +1,5 @@
-from flask import request
 from api import db
-from api.model.database.users import Usuario, Bairro
+from api.model.database.users import Usuario
 from api.model.database.notifications import Notificacoes_Conf
 
 def UserToDict(user: Usuario):
@@ -37,32 +36,6 @@ def GetUsers():
         } for user in users]
 
     return {"count": len(results), "users": results, "message": "success"}
-
-#TODO: separar POST e GET
-#TODO: remover verificação de método
-#TODO: remover verificação de json POST
-def Bairros():
-    if request.method == 'POST':
-        if request.is_json:
-            data = request.get_json()
-            new_bairro = Bairro(nome=data['nome'])
-
-            db.session.add(new_bairro)
-            db.session.commit()
-
-            return {"message": f"Privilégio criado com sucesso"}
-        else:
-            return {"error": "A requisição não foi feita no formato esperado"}
-
-    elif request.method == 'GET':
-        bairros = Bairro.query.all()
-        results = [
-            {
-                "nome": bairro.nome,
-                "id": bairro.id
-            } for bairro in bairros]
-
-        return {"count": len(results), "Bairros": results, "message": "success"}
 
 def GetUserId(id):
     user = Usuario.query.get_or_404(id)
