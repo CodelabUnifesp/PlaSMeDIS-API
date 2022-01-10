@@ -8,7 +8,7 @@ def PostNeighborhoods(data):
     db.session.add(new_bairro)
     db.session.commit()
 
-    return {"message": f"Privilégio criado com sucesso"}
+    return {"message": f"Bairro criado com sucesso"}
     
 def GetNeighborhoods():
     bairros = Bairro.query.all()

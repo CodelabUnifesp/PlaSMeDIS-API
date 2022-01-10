@@ -3,7 +3,7 @@ from api.util.decorators import required
 from api.service.neighborhoods import GetNeighborhoods, PostNeighborhoods
 from api import api
 from flask_restx import Resource
-import api.model.request.users as request
+import api.model.request.neighborhoods as request
 import api.model.response.neighborhoods as response
 import api.model.response.default as default
 
@@ -17,6 +17,6 @@ class User(Resource):
         return GetNeighborhoods()
     
     @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-    @required(response=default.message, token=False)
+    @required(response=default.message, request=request.neighborhood, token=True)
     def post(self, data):
         return PostNeighborhoods(data)
