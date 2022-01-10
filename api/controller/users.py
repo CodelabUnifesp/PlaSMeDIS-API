@@ -24,15 +24,6 @@ class User(Resource):
     def post(self, data):
         return PostUsers(data)
 
-#TODO: criar controller para bairros?
-#TODO: separar POST e GET
-#TODO: adicionar json_required POST
-@app.route('/bairros', methods=['POST', 'GET'])
-@cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
-@token_required
-def bairros():
-    return Bairros()
-
 @users.route('/<int:id>')
 class UserId(Resource):
     @cross_origin(origin='*', headers=['Content-Type', 'Authorization'])
